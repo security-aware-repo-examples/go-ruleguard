@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"net/http"
 
@@ -29,6 +30,15 @@ func main() {
 	r.GET("/", func(c *gin.Context) {
 		posts := []Tweet{}
 		db.Find(&posts)
+		c.JSON(http.StatusOK, map[string]interface{}{
+			"posts": posts,
+		})
+	})
+	r.GET("/search", func(c *gin.Context) {
+		title, _ := c.GetQuery("title")
+		query := fmt.Sprintf("select * from posts where title LIKE '%%%s%%'", title)
+		posts := []Tweet{}
+		db.Raw(query).Scan(&posts)
 		c.JSON(http.StatusOK, map[string]interface{}{
 			"posts": posts,
 		})
